@@ -74,12 +74,12 @@ int start(){
         	}	
 		}
 		
-		// if(fgets(line, lineSize, input) != NULL) 
-		// 	save(currentLine, cellCounter, output, 0);
-		// else {
-		// 	save(currentLine, cellCounter, output, 1);
-		// 	break;
-		// }
+		if(fgets(line, lineSize, input) != NULL) 
+			save(currentLine, cellCounter, output, 0);
+		else {
+			save(currentLine, cellCounter, output, 1);
+			break;
+		}
 		cellCounter = 0;
 	}
 
@@ -102,3 +102,37 @@ void insertionSortItems(List * input) {
 	}
 }
 
+/*ordena as células pelo valor da soma*/
+void insertionSortCells(List * input, int listSize) {
+	for (int i = 1; i < listSize; i++) {
+		List key = input[i];
+		int j = i - 1;
+
+		while (j >= 0 && key.sum < input[j].sum) {
+			input[j + 1] = input[j];
+			j--;
+		}
+		input[j + 1] = key;
+	}
+}
+
+void save(List * input, int listSize, FILE * fileOut, int isLast) {
+	insertionSortCells(input, listSize);
+	int j = 0;
+	for(int i = 0; i < listSize; i++) {
+		fprintf(fileOut, "%s", "start ");
+		insertionSortItems(&input[i]);
+		for(j = 0; j < input[i].itemCount - 1; j++) {
+			fprintf(fileOut, "%d ", input[i].numberList[j]);
+		}
+		if(i < listSize - 1) {
+			fprintf(fileOut, "%d ", input[i].numberList[j]);
+		}
+		else {
+			fprintf(fileOut, "%d", input[i].numberList[j]);
+		}
+	}
+	if(!isLast) {
+		fputc('\n', fileOut);
+	}
+}
