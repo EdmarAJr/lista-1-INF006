@@ -7,8 +7,7 @@
    |  start 6 8 15 0 start 5 1 3 2               |
    |---------------------------------------------|
    
- arnce
-                     L1Q1.out  
+                      L1Q1.out  
    |---------------------------------------------|
    |  start 3 1 2 start 1 0 2 3 start 0 1 2 4 5  | 
    |  start 1 2 3 5 start 8 0 6 15               |
@@ -24,9 +23,9 @@
 #include <string.h>
 
 /*definições de tipos e variáveis de pré-processamento*/
-# define lineSize 1000
-# define MAX_ListS 50
-# define MAX_NUMBERS 100
+#define lineSize 1000
+#define MAX_ListS 50
+#define MAX_NUMBERS 100
 
 typedef struct list {
 	int numberList[MAX_NUMBERS];
@@ -61,7 +60,6 @@ int start(){
 	/*contador dos itens da lista*/
 	int cellCounter = 0;
 	
-
 	/*copia cada linha do input no comprimento de 1000 caracteres para line*/
 	fgets(line, lineSize, input);
 	/*percorre a linha enquanto existir caractere válido*/
