@@ -1,3 +1,24 @@
+
+/*
+ *  1. Considere as seguintes entrada e sada abaixo:
+ *                   L1Q1.in
+   |---------------------------------------------|
+   |  start 3 1 2 0 start 4 2 5 1 0 start 2 1 3  | 
+   |  start 6 8 15 0 start 5 1 3 2               |
+   |---------------------------------------------|
+   
+ arnce
+                     L1Q1.out  
+   |---------------------------------------------|
+   |  start 3 1 2 start 1 0 2 3 start 0 1 2 4 5  | 
+   |  start 1 2 3 5 start 8 0 6 15               |
+   |---------------------------------------------|
+ 
+*  A cada linha um start marca o incio de uma lista de numeros naturais que acaba na ocorrencia do
+*  proximo start ou na quebra de linha. No arquivo de sada devem aparecer todas as listas em ordem
+*  crescente. As listas deverao tambem ser ordenadas entre si conforme a soma de seus elementos.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
