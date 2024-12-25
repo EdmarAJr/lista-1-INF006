@@ -291,7 +291,7 @@
 #include <string.h>
 #include <stdbool.h>
 #define LINE_SIZE 1000
-#define STACK_SIZE 10
+#define STACK_SIZE 100
 #define MAX_NUMS 100
 
 typedef struct {
@@ -329,7 +329,7 @@ int start(){
 	char split[] = " ";
 	/*ponteiro para salvar os dados separados da função strtok_r (thread-safe)*/
 	char *outer;
-    int counterPop=0;
+    
 
 //teste para aferir se este é o local correto para inicializar a pilha
     /*cria uma nova pilha a cada nova linha*/
@@ -342,93 +342,48 @@ int start(){
     /*copia cada linha do input no comprimento de 1000 caracteres para line*/
 	//fgets(line, LINE_SIZE, input);
     /*percorre a linha enquanto existir caractere válido*/  
-    while(fgets(line, LINE_SIZE, input) != NULL){
-        //printf("Primeiro while\n");
-        // /*cria uma nova pilha a cada nova linha*/
-        // SortedStack *stack=malloc(sizeof(SortedStack));
-        // SortedStack *stack_aux=malloc(sizeof(SortedStack));
-        // /*inicializa a pilha a cada nova linha*/
-        // initStack(stack, STACK_SIZE);
-        // initStack(stack_aux, STACK_SIZE);
-        
-        char *token = strtok_r(line, split, &outer);
-        //printf("token : %s\n", token);
-        //removeLineBreak(token);
-        push(stack, token);//insere o primeiro elemento da linha na pilha
-        fprintf(output, "%s%s", "push-", token);
-        token = strtok_r(NULL, split, &outer); // Em seguida, passa para o proximo elemento, que sera testado
-        while(token !=NULL){ //verifica se há mais elementos na linha
-            //printf("segundo while\n");
-            fputc(32, output);
-            char strTmp[strlen(token) + 1];
-			strcpy(strTmp, token);
-            //printf("token : %s\n", token);
-            //if(!isFull(stack)){
-                //printf("Entrou no if do segundo while\n");
-                //printf("outer : %s\n", outer);
-                
-                //printf("length : %d\n", stack->length);
-                /*Verifica se o elemento atual vem antes do elemento no topo da piha*/
-                if(!isEmpty(stack) && strcmp(strTmp, stack->stack[stack->top]) < 0){
-                    // printf("Entrou no segundo if do segundo while\n");
-                    // printf("token : %s\n", token);
-                    // printf("nome na pilha : %s\n", stack->stack[stack->top]);
-                    // //printf("outer : %s\n", outer);
-                    // printf("strTmp : %s\n", strTmp);
-                    while (strcmp(strTmp, stack->stack[stack->top])<0){
-                        //printf("top : %d\n", stack->top);
-                        counterPop++;
-                        push(stack_aux,  pop(stack));//insere o elemento maior na pilha auxiliar
-                        printf("counter pop : %d\n", counterPop);
-                        if (counterPop > 0) {
-                            fprintf(output, "%dx-pop ", counterPop);
-                        }
-                    }
-                    //push(stack, strTmp);//insere o novo elemento menor na pilha principal
-                } else if (!isEmpty(stack_aux) && strcmp(stack_aux->stack[stack_aux->top], stack->stack[stack->top]) > 0) {
-                    while (strcmp(stack_aux->stack[stack_aux->top], stack->stack[stack->top])>0){
-                        push(stack,  pop(stack_aux));//insere maior elemento da pilha auxiliar na pilha principal
-                        fprintf(output, "%s%s", "push-", token);  
-                    }
-                }else{
-                    push(stack, token);//insere o novo elemento menor na pilha principal
-                    fprintf(output, "%s%s", "push-", token);  
-                }
+    while (fgets(line, LINE_SIZE, input) != NULL) {
+    char* token = strtok_r(line, split, &outer);
 
+    // Inicializa a contagem de pops
+    int counterPop = 0;
 
-                // if(isEmpty(stack)){
-                //     strcpy(stack[stack->top++].STK, token);
-                //     //fprintf(output,"push-%s ",token);
-                // }
-//     //             else{
-//     //                 int i=stack->top;
-//     //                 while(strcmp(token,stack[i].STK) <= 0 && i >- 1){
-//     //                     i--;
-//     //                 }
-//     //                 if(i==stack->top){
-//     //                     strcpy(stack[stack->top++].STK, token);
-//     //                     fprintf(output,"push-%s ",token);
-//     //                 }
-//     //                 else if(i<stack->top){
-//     //                     int pop =0;
-//     //                     while(stack->top>i){
-//     //                         strcpy(stack_aux[stack_aux->top++].STK, stack[stack->top--].STK);
-//     //                         pop++;
-//     //                     }
-//     //                     fprintf(output,"%dx-pop ",pop);
-//     //                     strcpy(stack[stack->top++].STK, token);
-//     //                     fprintf(output,"push-%s ",token);
-//     //                     while(isEmpty(stack_aux)){
-//     //                         strcpy(stack[stack->top++].STK, stack_aux[stack_aux->top--].STK);
-//     //                         fprintf(output,"push-%s ",stack[stack->top].STK);
-//     //                     }
-//     //                 }
-//     //             }
-            //}
-            //counterPop = 0;
-            token = strtok_r(NULL, split, &outer);
+    while (token != NULL) {
+        char strTmp[strlen(token) + 1];
+        strcpy(strTmp, token);
+
+        // Move elementos da pilha principal para a auxiliar enquanto necessário
+        while (!isEmpty(stack) && strcmp(strTmp, stack->stack[stack->top]) < 0) {
+            push(stack_aux, pop(stack));
+            counterPop++;
         }
+
+        // Registra o número de pops realizados
+        if (counterPop > 0) {
+            fprintf(output, "%dx-pop ", counterPop);
+            counterPop = 0;
+        }
+
+        // Insere o token na pilha principal
+        push(stack, strTmp);
+        fprintf(output, "push-%s ", strTmp);
+
+        // Reinsere os elementos da pilha auxiliar de volta na pilha principal
+        while (!isEmpty(stack_aux)) {
+            char* auxTop = pop(stack_aux);
+            push(stack, auxTop);
+            fprintf(output, "push-%s ", auxTop);
+        }
+
+        // Avança para o próximo token
+        token = strtok_r(NULL, split, &outer);
     }
+
+    // Quebra de linha após processar a entrada atual
+    fprintf(output, "\n");
+}
+
+
     fclose(input);
     fclose(output);
 }
@@ -459,32 +414,32 @@ bool isFull(SortedStack *stack){
 }
 
 void push(SortedStack* stack, char* name) {
-    //printf("Nome : %s\n", name);
+    printf("Nome : %s\n", name);
     if (isFull(stack)) {
         printf("Erro: Pilha cheia!\n");
         return; // Verifica se a pilha está cheia
     }
 
     printf("push: foi\n");
-    char* temp[STACK_SIZE];      // Vetor temporário
-    int tempTop = -1;            // Índice do topo da pilha temporária
+    // char* temp[STACK_SIZE];      // Vetor temporário
+    // int tempTop = -1;            // Índice do topo da pilha temporária
 
-    // Mover os elementos da pilha para a pilha temporária até encontrar a posição correta
-    while (!isEmpty(stack) && strcmp(stack->stack[stack->top], name) > 0) {
-        temp[++tempTop] = stack->stack[stack->top--]; // Mover o topo da pilha para a pilha temporária
-    }
+    // // Mover os elementos da pilha para a pilha temporária até encontrar a posição correta
+    // while (!isEmpty(stack) && strcmp(stack->stack[stack->top], name) > 0) {
+    //     temp[++tempTop] = stack->stack[stack->top--]; // Mover o topo da pilha para a pilha temporária
+    // }
 
     // Alocar memória para o novo nome e colocá-lo na pilha
     stack->stack[++stack->top] = strdup(name);
-    if (stack->stack[stack->top] == NULL) {
-        printf("Erro ao alocar memória para o nome!\n");
-        return; // Se a alocação falhar, retornamos
-    }
+    // if (stack->stack[stack->top] == NULL) {
+    //     printf("Erro ao alocar memória para o nome!\n");
+    //     return; // Se a alocação falhar, retornamos
+    // }
 
-    // Restaurar os elementos da pilha temporária de volta à pilha original
-    while (tempTop >= 0) {
-        stack->stack[++stack->top] = temp[tempTop--];
-    }
+    // // Restaurar os elementos da pilha temporária de volta à pilha original
+    // while (tempTop >= 0) {
+    //     stack->stack[++stack->top] = temp[tempTop--];
+    // }
 }
 
 char* pop(SortedStack* stack) {
