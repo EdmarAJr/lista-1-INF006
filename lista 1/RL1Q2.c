@@ -365,7 +365,7 @@ int start(){
         }
 
         // Insere o token na pilha principal
-        push(stack, strTmp);
+        //push(stack, strTmp);
         fprintf(output, "push-%s ", strTmp);
 
         // Reinsere os elementos da pilha auxiliar de volta na pilha principal
@@ -378,12 +378,15 @@ int start(){
         // Avança para o próximo token
         token = strtok_r(NULL, split, &outer);
     }
+    
 
     // Quebra de linha após processar a entrada atual
-    fprintf(output, "\n");
 }
+    //fprintf(output, "\n");
 
 
+    free(stack);
+    free(stack_aux);
     fclose(input);
     fclose(output);
 }
