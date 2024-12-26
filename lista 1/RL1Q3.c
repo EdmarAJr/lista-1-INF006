@@ -14,13 +14,19 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-# include <string.h>
+#include <string.h>
 
 /* Definições de tipos e variáveis de pré-processamento */
+#define LINE_SIZE 1000
 typedef struct simpleNode {
 	float value;
 	struct simpleNode *next;
 } S_NODE;
+
+typedef struct circularLinkedList {
+	S_NODE *head;
+	S_NODE *tail;
+} C_List;
 
 typedef struct doublyNode {
     int value;
@@ -30,24 +36,20 @@ typedef struct doublyNode {
     float range;
 } D_NODE;
 
-typedef struct circularLinkedList {
-	S_NODE *head;
-	S_NODE *tail;
-} C_List;
-
 typedef struct doublyLinkedList{
     D_NODE *head;
     D_NODE *tail;
 } D_List;
 
-
 /*protótipos de funções*/
 int start();
-D_NODE *create_node(int key);
-void initCL(C_List * CL);
-void initDL(D_List * DL);
+D_NODE *create_Dnode(int key);
+S_NODE *create_Snode(int value);
+void init_Clist(C_List * CL);
+void init_Dlist(D_List * DL);
 D_NODE *search_Dlist(D_List *list, int value);
 void insert_Dlist(D_List *list, D_NODE *current);
+void insert_Clist(C_List *CL, float newValue);
 
 int main(){
     start();
@@ -55,11 +57,79 @@ int main(){
 }
 
 int start(){
-    printf("Hello World");
+    FILE *input = fopen("L1Q3.in", "r");
+    FILE *output = fopen("L1Q3.out", "w");
+    
+    if (!input || !output) {
+        printf("Error opening files.\n");
+        return EXIT_FAILURE;
+    }
+    /*cria uma nova linha*/	
+	char * line = malloc(LINE_SIZE * sizeof(char));
+	/*separador dos itens da linha*/
+	char split[] = " ";
+	/*ponteiro para salvar os dados separados da função strtok_r (thread-safe)*/
+	char *outer;
+
+    while(fgets(line, LINE_SIZE, input) != NULL){
+        D_List *DL = malloc(sizeof(D_List));
+        init_Dlist(DL);
+        char *token = strtok_r(line, split, &outer);
+         while(token != NULL){
+             if(strcmp(token, "LE") == 0){
+                token = strtok_r(NULL, split, &outer);
+                //printf("token: %s\n", token);
+                D_NODE *current = create_Dnode(atoi(token));
+                insert_Dlist(DL, current);
+            } else if(strcmp(token, "LI") == 0){
+                token = strtok_r(NULL, split, &outer);
+                D_NODE *current = search_Dlist(DL, atoi(token));
+                if(current != NULL){
+                    C_List *CL = malloc(sizeof(C_List));
+                    init_Clist(CL);
+                    token = strtok_r(NULL, split, &outer);
+                    while(token != NULL){
+                        insert_Clist(CL, atof(token));
+                        token = strtok_r(NULL, split, &outer);
+                    }
+                    current->key = CL;
+                }
+            }
+            token = strtok_r(NULL, split, &outer);
+        }
+        // if (DL == NULL || DL->head == NULL) {
+        //     fprintf(stderr, "Erro: DL ou DL->head é nulo.\n");
+        //     return EXIT_FAILURE;
+        // }
+        // D_NODE *current = DL->head;
+        // while(current != NULL){
+        //     fprintf(output, "[%d(", current->value);
+        //     if (current->key == NULL || current->key->head == NULL) {
+        //         fprintf(stderr, "Error: current->key or current->key->head is NULL.\n");
+        //         return EXIT_FAILURE;
+        //     }
+        //     S_NODE *currentCL = current->key->head;
+        //     while(currentCL != NULL){
+        //         fprintf(output, "%.2f", currentCL->value);
+        //         if(currentCL->next != NULL){
+        //             fprintf(output, " >");
+        //         }
+        //         currentCL = currentCL->next;
+        //     }
+        //     fprintf(output, ")");
+        //     if(current->next != NULL){
+        //         fprintf(output, " >");
+        //     }
+        //     current = current->next;
+        // }
+        // fprintf(output, "\n");
+    }
+    free(line);
     EXIT_SUCCESS;
 }
 
-D_NODE *create_node(int value){
+D_NODE *create_Dnode(int value){
+    printf("create duplo value: %d\n", value);
     D_NODE *node = malloc(sizeof(D_NODE));
     node->value = value;
     node->next = NULL;
@@ -67,13 +137,20 @@ D_NODE *create_node(int value){
     return node;
 }
 
+S_NODE *create_Snode(int value){
+    printf("create simple value: %d\n", value);
+    S_NODE *node = malloc(sizeof(S_NODE));
+    node->value = value;
+    node->next = NULL;
+    return node;
+}
 
-void initCL(C_List * CL) {
+void init_Clist(C_List * CL) {
 	CL->head = NULL;
 	CL->tail = NULL;
 }
 
-void initDL(D_List * DL) {
+void init_Dlist(D_List * DL) {
 	DL->head = NULL;
 	DL->tail = NULL;
 }
@@ -94,7 +171,6 @@ void initDL(D_List * DL) {
 //     list->head = current;
 //     current->prev = NULL;
 // }
-
 
 D_NODE *search_Dlist(D_List *list, int value) {
     D_NODE *current = list->head;
@@ -119,8 +195,6 @@ void insert_Dlist(D_List *list, D_NODE *newNode) {
         list->head = newNode;
     }
 }
-
-
 
 S_NODE *search_Clist(C_List *list, float value){
     /*Lista vazia*/ 
@@ -148,7 +222,7 @@ S_NODE *search_Clist(C_List *list, float value){
     return NULL;
 }
 
-void insertCL(C_List *CL, float newValue) {
+void insert_Clist(C_List *CL, float newValue) {
     /*inicia um novo no*/
     S_NODE *newNode = malloc(sizeof(S_NODE));
     newNode->value = newValue;

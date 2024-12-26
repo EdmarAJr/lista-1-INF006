@@ -23,8 +23,8 @@
 #include <string.h>
 
 /*definições de tipos e variáveis de pré-processamento*/
-#define lineSize 1000
-#define MAX_ListS 50
+#define LINE_SIZE 1000
+#define MAX_LIST 50
 #define MAX_NUMBERS 100
 
 typedef struct list {
@@ -52,7 +52,7 @@ int start(){
         return EXIT_FAILURE;
     }
 	/*cria uma nova linha*/	
-	char * line = malloc(lineSize * sizeof(char));
+	char * line = malloc(LINE_SIZE * sizeof(char));
 	/*separador dos itens da linha*/
 	char split[] = " ";
 	/*ponteiro para salvar os dados separados da função strtok_r (thread-safe)*/
@@ -61,14 +61,14 @@ int start(){
 	int cellCounter = 0;
 	
 	/*copia cada linha do input no comprimento de 1000 caracteres para line*/
-	fgets(line, lineSize, input);
+	fgets(line, LINE_SIZE, input);
 	/*percorre a linha enquanto existir caractere válido*/
 	while(line != NULL){ 
 		/*cópia auxiliar de cada linha*/
 		char *token = strtok_r(line, split, &outer);
 		
 		/*nova lista sem o start*/
-		List currentLine[MAX_ListS] = {0};
+		List currentLine[MAX_LIST] = {0};
 		/*percorre o dado enquanto existir caractere válido*/
 		while (token != NULL) {
 			/*remove o start de cada novo dado. Ex: 3 -1 2 0 start 4 2 5 1 0 start 2 1 -3 start 2 1 100 -3 start 2 101 -3*/
@@ -93,7 +93,7 @@ int start(){
         	}	
 		}
 		
-		if(fgets(line, lineSize, input) != NULL) 
+		if(fgets(line, LINE_SIZE, input) != NULL) 
 			save(currentLine, cellCounter, output, 0);
 		else {
 			save(currentLine, cellCounter, output, 1);
