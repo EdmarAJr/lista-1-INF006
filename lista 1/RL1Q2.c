@@ -23,33 +23,31 @@
  |  push Maria 1x pop push Joao push Maria                                                                           |
  |-------------------------------------------------------------------------------------------------------------------| 
  */
+
 // #include <stdio.h>
 // #include <stdlib.h>
-// #include <stdbool.h>
 // #include <string.h>
-// #define lineSize 1000
-// #define stack_length 50
+// #include <stdbool.h>
 
-// typedef struct node {
-// 	struct node * prev;
-// 	struct node * next;
-// 	char * key;
-// } NODE;
+// /*definicoes de tipos e variáveis de pre-processamento*/
+// #define LINE_SIZE 1000
+// #define STACK_SIZE 100
+// #define MAX_NUMS 100
 
-
-// typedef struct stack{
-//     char *STK;
+// typedef struct {
+//     char* stack[STACK_SIZE];//para modificar essa linha precisamos pensar em como inicializar a stack
 //     int top;
-//     int length;
-// } STACK;
-
+//     int size;
+// } SortedStack;
 
 // int start();
-// bool isEmpty(STACK *stack);
-// bool isFull(STACK *stack);
-// void create(STACK *stack, int size);
-// void push(STACK *stack, int value);
-// int pop(STACK *stack);
+// void initStack(SortedStack* stack, int size);
+// bool isEmpty(SortedStack* stack);
+// bool isFull(SortedStack *stack);
+// void removeLineBreak(char * str);
+// void push(SortedStack* stack, char* name);
+// char* pop(SortedStack* stack);
+// void printStack(SortedStack* stack);
 
 // int main(){
 //     start();
@@ -60,397 +58,267 @@
 //     FILE *input = fopen("L1Q2.in", "r");
 //     FILE *output = fopen("L1Q2.out", "w");
     
+//     /*verfica se os ponteiros foram iniciados com sucesso*/	
 //     if (!input || !output) {
 //         printf("Error opening files.\n");
 //         return EXIT_FAILURE;
 //     }
 // 	/*cria uma nova linha*/	
-// 	char * line = malloc(lineSize * sizeof(char));
+// 	char * line = malloc(LINE_SIZE * sizeof(char));
 // 	/*separador dos itens da linha*/
 // 	char split[] = " ";
 // 	/*ponteiro para salvar os dados separados da função strtok_r (thread-safe)*/
 // 	char *outer;
+    
+//     /*cria uma nova pilha a cada nova linha*/
+//     SortedStack *stack=malloc(sizeof(SortedStack));
+//     SortedStack *stack_aux=malloc(sizeof(SortedStack));
+//     /*inicializa a pilha a cada nova linha*/
+//     initStack(stack, STACK_SIZE);
+//     initStack(stack_aux, STACK_SIZE);
+
 //     /*copia cada linha do input no comprimento de 1000 caracteres para line*/
-// 	fgets(line, lineSize, input);
-//     /*percorre a linha enquanto existir caractere válido*/    
-//     while(line != NULL){
-//         STACK *stack=malloc(sizeof(STACK));
-//         STACK *stack_aux=malloc(sizeof(STACK));
-//         create(stack, stack_length);
-//         create(stack_aux, stack_length);
+// 	/*percorre a linha enquanto existir caractere válido*/  
+//     while (fgets(line, LINE_SIZE, input) != NULL) {
+//         char* token = strtok_r(line, split, &outer);
+
+//         /*Inicializa a contagem de pops*/ 
+//         int counterPop = 0;
         
-//         char *token = strtok_r(line, split, &outer);
-        
-//         // printf("token : %s\n", token);
-//         while(token){
-//             if(stack->top < stack_length){
-//                 printf("token : %s\n", token);
-//                 printf("top : %d\n", stack->top);
-//                 printf("length : %d\n", stack->length);
-                
-//                 if(isEmpty(stack)){
-//                     strcpy(stack[stack->top++].STK, token);
-//                     //fprintf(output,"push-%s ",token);
-//                 }
-//     //             else{
-//     //                 int i=stack->top;
-//     //                 while(strcmp(token,stack[i].STK) <= 0 && i >- 1){
-//     //                     i--;
-//     //                 }
-//     //                 if(i==stack->top){
-//     //                     strcpy(stack[stack->top++].STK, token);
-//     //                     fprintf(output,"push-%s ",token);
-//     //                 }
-//     //                 else if(i<stack->top){
-//     //                     int pop =0;
-//     //                     while(stack->top>i){
-//     //                         strcpy(stack_aux[stack_aux->top++].STK, stack[stack->top--].STK);
-//     //                         pop++;
-//     //                     }
-//     //                     fprintf(output,"%dx-pop ",pop);
-//     //                     strcpy(stack[stack->top++].STK, token);
-//     //                     fprintf(output,"push-%s ",token);
-//     //                     while(isEmpty(stack_aux)){
-//     //                         strcpy(stack[stack->top++].STK, stack_aux[stack_aux->top--].STK);
-//     //                         fprintf(output,"push-%s ",stack[stack->top].STK);
-//     //                     }
-//     //                 }
-//     //             }
+//         /*percorre o token enquanto existir caractere válido*/  
+//         while (token != NULL) {
+//             /*Move elementos da pilha principal para a auxiliar enquanto necessário*/ 
+//             while (!isEmpty(stack) && strcmp(token, stack->stack[stack->top]) < 0) {
+//                 push(stack_aux, pop(stack));
+//                 counterPop++;
 //             }
+
+//             /*Registra o número de pops realizados*/
+//             if (counterPop > 0) {
+//                 fprintf(output, "%dx-pop ", counterPop);
+//                 counterPop = 0;
+//             }
+
+//             push(stack, token);
+//             /*escreve no output*/ 
+//             fprintf(output, "push-%s ", token);
+
+//             /*Reinsere os elementos da pilha auxiliar de volta na pilha principal*/ 
+//             while (!isEmpty(stack_aux)) {
+//                 char* auxTop = pop(stack_aux);
+//                 push(stack, auxTop);
+//                 fprintf(output, "push-%s ", auxTop);
+//             }
+
+//             /*Avança para o próximo token*/ 
 //             token = strtok_r(NULL, split, &outer);
-//         }
+//         }   
 //     }
+//     free(stack);
+//     free(stack_aux);
 //     fclose(input);
 //     fclose(output);
 // }
 
-// void create(STACK *stack, int size){
-//     stack->STK = malloc((char) size*sizeof(char));
+// void initStack(SortedStack* stack, int size) {
+//     //stack->stack = malloc((char) size*sizeof(char));
 //     stack->top=-1;
-//     stack->length = size;
+//     stack->size = size;
 // }
 
-// void push(STACK *stack, char* value){
-//     if (!isFull(stack)){
-//         stack->top = stack->top + 1;
-//         stack->STK[stack->top] = value;
-//     }
-//     else
-//         printf("Stack is full!\n");
+// void removeLineBreak(char * str) {
+// 	for(int i = 0; str[i] != '\0'; i++ ) {
+// 		if(str[i] == '\n') {
+// 			str[i] = '\0';
+// 			break;
+// 		}
+// 	}
 // }
 
-// char *pop(STACK *stack){
-//     if (!isEmpty(stack)) {
-//         stack->top = stack->top - 1;
-//         return stack->STK[stack->top + 1];
-//     }else{
-//         printf("Stack is empty!\n");
-//         return EXIT_FAILURE;
-//     }
-// }
-
-// bool isEmpty(STACK *stack){
-//     return stack->top==-1;
-// }
-
-// bool isFull(STACK *stack){
-//     return stack->top==stack->length-1;
-// }
-
-
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <stdbool.h>
-// #include <string.h>
-
-// #define lineSize 1000
-// #define stack_length 50
-// #define MAX_NAME_LENGTH 100
-
-// typedef struct {
-//     char **STK;
-//     int top;
-//     int length;
-// } STACK;
-
-// bool isEmpty(STACK *stack);
-// bool isFull(STACK *stack);
-// void create(STACK *stack, int size);
-// void push(STACK *stack, const char *value, FILE *output);
-// char* pop(STACK *stack, FILE *output);
-// void printStack(STACK *stack);
-// void handlePushOperation(STACK *stack, STACK *stack_aux, const char *token, FILE *output);
-
-// int main() {
-//     FILE *input = fopen("L1Q2.in", "r");
-//     FILE *output = fopen("L1Q2.out", "w");
-
-//     if (!input || !output) {
-//         printf("Error opening files.\n");
-//         return EXIT_FAILURE;
-//     }
-
-//     char line[lineSize];
-//     char split[] = " ";
-//     char *outer;
-
-//     while (fgets(line, lineSize, input) != NULL) {
-//         STACK stack;
-//         STACK stack_aux;
-//         create(&stack, stack_length);
-//         create(&stack_aux, stack_length);
-
-//         char *token = strtok_r(line, split, &outer);
-
-//         while (token) {
-//             handlePushOperation(&stack, &stack_aux, token, output);
-//             token = strtok_r(NULL, split, &outer);
-//         }
-
-//         fprintf(output, "\n");
-
-//         // Liberar a memória alocada para as pilhas
-//         for (int i = 0; i < stack.length; ++i) {
-//             free(stack.STK[i]);
-//             free(stack_aux.STK[i]);
-//         }
-//         free(stack.STK);
-//         free(stack_aux.STK);
-//     }
-
-//     fclose(input);
-//     fclose(output);
-//     return 0;
-// }
-
-// void create(STACK *stack, int size) {
-//     stack->STK = (char **)malloc(size * sizeof(char *));
-//     for (int i = 0; i < size; ++i) {
-//         stack->STK[i] = (char *)malloc(MAX_NAME_LENGTH * sizeof(char));
-//     }
-//     stack->top = -1;
-//     stack->length = size;
-// }
-
-// void push(STACK *stack, const char *value, FILE *output) {
-//     if (!isFull(stack)) {
-//         stack->top++;
-//         strncpy(stack->STK[stack->top], value, MAX_NAME_LENGTH);
-//         fprintf(output, "push-%s ", value);
-//     } else {
-//         printf("Stack is full!\n");
-//     }
-// }
-
-// char* pop(STACK *stack, FILE *output) {
-//     if (!isEmpty(stack)) {
-//         fprintf(output, "1x-pop ");
-//         return stack->STK[stack->top--];
-//     } else {
-//         printf("Stack is empty!\n");
-//         return NULL;
-//     }
-// }
-
-// bool isEmpty(STACK *stack) {
+// /*retorna true se a pilha estiver vazia*/
+// bool isEmpty(SortedStack* stack) {
 //     return stack->top == -1;
 // }
 
-// bool isFull(STACK *stack) {
-//     return stack->top == stack->length - 1;
+// /*retorna true se a pilha estiver cheia*/
+// bool isFull(SortedStack *stack){
+//     return stack->top==stack->size-1;
 // }
 
-// void handlePushOperation(STACK *stack, STACK *stack_aux, const char *token, FILE *output) {
-//     int pops = 0;
-
-//     // Desempilhar até encontrar a posição correta para o novo token
-//     while (!isEmpty(stack) && strcmp(stack->STK[stack->top], token) > 0) {
-//         push(stack_aux, pop(stack, output), output);
-//         pops++;
+// void push(SortedStack* stack, char* name) {
+//     /*Verifica se a pilha esta cheia*/ 
+//     if (isFull(stack)) {
+//         printf("Error: stack full!\n");
+//         return; 
 //     }
-
-//     // Empilhar o novo token na posição correta
-//     push(stack, token, output);
-
-//     // Reempilhar os elementos desempilhados
-//     while (!isEmpty(stack_aux)) {
-//         push(stack, pop(stack_aux, output), output);
-//     }
+//     /*Alocar memoria para o novo nome e coloca-lo na pilha*/ 
+//     stack->stack[++stack->top] = strdup(name);
 // }
 
-// void printStack(STACK *stack) {
-//     printf("Stack:\n");
+// char* pop(SortedStack* stack) {
+//     /*Verifica se a pilha está vazia*/ 
+//     if (isEmpty(stack)) {
+//         printf("Error: stack empty!\n");
+//         return NULL; 
+//     }
+//     return stack->stack[stack->top--];
+// }
+
+// void printStack(SortedStack* stack) {
 //     for (int i = 0; i <= stack->top; i++) {
-//         printf("%s\n", stack->STK[i]);
+//         printf("%s ", stack->stack[i]);
 //     }
 //     printf("\n");
 // }
+
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+
+/* Definições de tipos e variáveis de pré-processamento */
 #define LINE_SIZE 1000
 #define STACK_SIZE 100
-#define MAX_NUMS 100
 
 typedef struct {
     char* stack[STACK_SIZE];//para modificar essa linha precisamos pensar em como inicializar a stack
     int top;
-    int length;
+    int size;
 } SortedStack;
 
 int start();
 void initStack(SortedStack* stack, int size);
+void clearStack(SortedStack* stack);
 bool isEmpty(SortedStack* stack);
 bool isFull(SortedStack *stack);
-void removeLineBreak(char * str);
 void push(SortedStack* stack, char* name);
 char* pop(SortedStack* stack);
 void printStack(SortedStack* stack);
 
-int main(){
+int main() {
     start();
     return 0;
 }
 
-int start(){
-    //printf("inicio da função start\n\n");
+int start() {
     FILE *input = fopen("L1Q2.in", "r");
     FILE *output = fopen("L1Q2.out", "w");
     
+    /* Verifica se os ponteiros foram iniciados com sucesso*/
     if (!input || !output) {
         printf("Error opening files.\n");
         return EXIT_FAILURE;
     }
-	/*cria uma nova linha*/	
-	char * line = malloc(LINE_SIZE * sizeof(char));
-	/*separador dos itens da linha*/
-	char split[] = " ";
-	/*ponteiro para salvar os dados separados da função strtok_r (thread-safe)*/
-	char *outer;
-    
 
-//teste para aferir se este é o local correto para inicializar a pilha
-    /*cria uma nova pilha a cada nova linha*/
-    SortedStack *stack=malloc(sizeof(SortedStack));
-    SortedStack *stack_aux=malloc(sizeof(SortedStack));
-    /*inicializa a pilha a cada nova linha*/
+    /* Cria uma nova linha */
+    char *line = malloc(LINE_SIZE * sizeof(char));
+    /* Separador dos itens da linha */
+    char split[] = " ";
+    /* Ponteiro para salvar os dados separados da função strtok_r (thread-safe) */
+    char *outer;
+
+    /* Cria uma nova pilha a cada nova linha */
+    SortedStack *stack = malloc(sizeof(SortedStack));
+    SortedStack *stack_aux = malloc(sizeof(SortedStack));
+    
+    /* Inicializa a pilha a cada nova linha */
     initStack(stack, STACK_SIZE);
     initStack(stack_aux, STACK_SIZE);
 
-    /*copia cada linha do input no comprimento de 1000 caracteres para line*/
-	//fgets(line, LINE_SIZE, input);
-    /*percorre a linha enquanto existir caractere válido*/  
+    /* Copia cada linha do input no comprimento de 1000 caracteres para line */
+    /* Percorre a linha enquanto existir caractere válido */
     while (fgets(line, LINE_SIZE, input) != NULL) {
-    char* token = strtok_r(line, split, &outer);
+        /* Limpa as pilhas antes de processar uma nova linha */
+        clearStack(stack);
+        clearStack(stack_aux);
+         
+         /*Copia a primeira ocorrência de cada linha do input antes do espaco e salva em token o reto da linha fica salva em outer*/
+        char* token = strtok_r(line, split, &outer);
 
-    // Inicializa a contagem de pops
-    int counterPop = 0;
+        /* Inicializa a contagem de pops */
+        int counterPop = 0;
+        
+        /* Percorre o token enquanto existir caractere valido */
+        while (token != NULL) {
+            /* Remove o caractere de nova linha, se existir */
+            token[strcspn(token, "\n")] = 0;
 
-    while (token != NULL) {
-        char strTmp[strlen(token) + 1];
-        strcpy(strTmp, token);
+            /* Move elementos da pilha principal para a auxiliar enquanto necessário */
+            while (!isEmpty(stack) && strcmp(token, stack->stack[stack->top]) < 0) {
+                push(stack_aux, pop(stack));
+                counterPop++;
+            }
 
-        // Move elementos da pilha principal para a auxiliar enquanto necessário
-        while (!isEmpty(stack) && strcmp(strTmp, stack->stack[stack->top]) < 0) {
-            push(stack_aux, pop(stack));
-            counterPop++;
+            /* Registra o numero de pops realizados */
+            if (counterPop > 0) {
+                fprintf(output, "%dx-pop ", counterPop);
+                counterPop = 0;
+            }
+            /*empilha os nomes que não cairam no laço anterio*/
+            push(stack, token);
+            /* Escreve no output*/
+            fprintf(output, "push-%s ", token);
+
+            /* Reinsere os elementos da pilha auxiliar de volta na pilha principal */
+            while (!isEmpty(stack_aux)) {
+                char* auxTop = pop(stack_aux);
+                push(stack, auxTop);
+                fprintf(output, "push-%s ", auxTop);
+            }
+
+            /* Avança para o próximo token */
+            token = strtok_r(NULL, split, &outer);
         }
-
-        // Registra o número de pops realizados
-        if (counterPop > 0) {
-            fprintf(output, "%dx-pop ", counterPop);
-            counterPop = 0;
-        }
-
-        // Insere o token na pilha principal
-        //push(stack, strTmp);
-        fprintf(output, "push-%s ", strTmp);
-
-        // Reinsere os elementos da pilha auxiliar de volta na pilha principal
-        while (!isEmpty(stack_aux)) {
-            char* auxTop = pop(stack_aux);
-            push(stack, auxTop);
-            fprintf(output, "push-%s ", auxTop);
-        }
-
-        // Avança para o próximo token
-        token = strtok_r(NULL, split, &outer);
+        /*salta uma linha apos o procesamento da linha atual*/
+        fprintf(output, "\n");
     }
-    
 
-    // Quebra de linha após processar a entrada atual
-}
-    //fprintf(output, "\n");
-
-
+    /*Libera a memoria alocada*/
     free(stack);
     free(stack_aux);
+    free(line);
     fclose(input);
     fclose(output);
-}
 
+    return 0;
+}
 
 void initStack(SortedStack* stack, int size) {
-    //printf("Inicializar stack: foi\n");
-    //stack->stack = malloc((char) size*sizeof(char));
-    stack->top=-1;
-    stack->length = size;
+    stack->top = -1;
+    stack->size = size;
 }
 
-void removeLineBreak(char * str) {
-	for(int i = 0; str[i] != '\0'; i++ ) {
-		if(str[i] == '\n') {
-			str[i] = '\0';
-			break;
-		}
-	}
+void clearStack(SortedStack* stack) {
+    while (!isEmpty(stack)) {
+        free(pop(stack));
+    }
+    stack->top = -1;
 }
 
 bool isEmpty(SortedStack* stack) {
     return stack->top == -1;
 }
 
-bool isFull(SortedStack *stack){
-    return stack->top==stack->length-1;
+bool isFull(SortedStack *stack) {
+    return stack->top == stack->size - 1;
 }
 
 void push(SortedStack* stack, char* name) {
-    printf("Nome : %s\n", name);
+    /* Verifica se a pilha está cheia */
     if (isFull(stack)) {
-        printf("Erro: Pilha cheia!\n");
-        return; // Verifica se a pilha está cheia
+        printf("Error: stack full!\n");
+        return;
     }
-
-    printf("push: foi\n");
-    // char* temp[STACK_SIZE];      // Vetor temporário
-    // int tempTop = -1;            // Índice do topo da pilha temporária
-
-    // // Mover os elementos da pilha para a pilha temporária até encontrar a posição correta
-    // while (!isEmpty(stack) && strcmp(stack->stack[stack->top], name) > 0) {
-    //     temp[++tempTop] = stack->stack[stack->top--]; // Mover o topo da pilha para a pilha temporária
-    // }
-
-    // Alocar memória para o novo nome e colocá-lo na pilha
+    /* Aloca memória para o novo nome e coloca-o na pilha */
     stack->stack[++stack->top] = strdup(name);
-    // if (stack->stack[stack->top] == NULL) {
-    //     printf("Erro ao alocar memória para o nome!\n");
-    //     return; // Se a alocação falhar, retornamos
-    // }
-
-    // // Restaurar os elementos da pilha temporária de volta à pilha original
-    // while (tempTop >= 0) {
-    //     stack->stack[++stack->top] = temp[tempTop--];
-    // }
 }
 
 char* pop(SortedStack* stack) {
-    printf("pop: foi\n");
-
+    /* Verifica se a pilha esta vazia */
     if (isEmpty(stack)) {
-        printf("Erro: Pilha vazia!\n");
-        return NULL; // Verifica se a pilha está vazia
+        printf("Error: stack empty!\n");
+        return NULL;
     }
     return stack->stack[stack->top--];
 }
