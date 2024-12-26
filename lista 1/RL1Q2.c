@@ -32,12 +32,14 @@
 #define LINE_SIZE 1000
 #define STACK_SIZE 100
 
-typedef struct {
+typedef struct stack {
     char* stack[STACK_SIZE];//para modificar essa linha precisamos pensar em como inicializar a stack
     int top;
     int size;
 } SortedStack;
 
+
+/*protótipos de funções*/
 int start();
 void initStack(SortedStack* stack, int size);
 void clearStack(SortedStack* stack);
@@ -132,7 +134,7 @@ int start() {
     fclose(input);
     fclose(output);
 
-    return 0;
+    EXIT_SUCCESS;
 }
 
 void initStack(SortedStack* stack, int size) {
