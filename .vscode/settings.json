@@ -9,6 +9,8 @@
         "tuple": "c",
         "type_traits": "c",
         "utility": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "string_view": "c",
+        "initializer_list": "c"
     }
 }
