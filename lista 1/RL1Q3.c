@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Definições de tipos e variáveis de pré-processamento */
+/* Definicoes de tipos e variaveis de pre-processamento */
 #define LINE_SIZE 1000
 
 typedef struct simpleNode {
@@ -41,7 +41,7 @@ typedef struct doublyLinkedList {
     D_NODE *tail;
 } D_List;
 
-/* protótipos de funções */
+/* protótipos de funcoes */
 int start();
 D_NODE *create_Dnode(int key);
 S_NODE *create_Snode(float value);
@@ -70,7 +70,7 @@ int start() {
     char *line = malloc(LINE_SIZE * sizeof(char));
     /* separador dos itens da linha */
     char split[] = " ";
-    /* ponteiro para salvar os dados separados da função strtok_r (thread-safe) */
+    /* ponteiro para salvar os dados separados da funcao strtok_r (thread-safe) */
     char *outer;
     /*linha atual*/
     while (fgets(line, LINE_SIZE, input) != NULL) {
@@ -106,7 +106,7 @@ int start() {
                     if (current != NULL) {
                         /*verifica se existe  lista circular (key) em em current (no duplo)*/
                         if (current->key == NULL) {
-                            /*se a lista circular (key) não estiver criada em current (no duplo), cria uma nova lista*/
+                            /*se a lista circular (key) nao estiver criada em current (no duplo), cria uma nova lista*/
                             current->key = malloc(sizeof(C_List));
                             /*inicia uma nova lista circular*/
                             init_Clist(current->key);
@@ -174,12 +174,12 @@ D_NODE *search_Dlist(D_List *DL, int value) {
         }
         current = current->next;
     } 
-    /*Retorna NULL se o valor não for encontrado ou se o valor no nó for maior que o procurado*/    
+    /*Retorna NULL se o valor nao for encontrado ou se o valor no nó for maior que o procurado*/    
     return NULL;
 }
 
 void insert_Dlist(D_List *DL, D_NODE *newNode) {
-    // Se a lista estiver vazia, inicializa a cabeça e a cauda
+    // Se a lista estiver vazia, inicializa a cabeca e a cauda
     if (DL->head == NULL) {
         DL->head = newNode;
         DL->tail = newNode;
@@ -192,7 +192,7 @@ void insert_Dlist(D_List *DL, D_NODE *newNode) {
         }
         /* se o novo-no for menor que o atual, insere antes, no início da lista */
         if (current == DL->head) {
-            newNode->next = DL->head; /* novo-no-proximo recebe da cabeça da lista */
+            newNode->next = DL->head; /* novo-no-proximo recebe da cabeca da lista */
             DL->head->prev = newNode;/* atualiza o valor da cabeca-anterior que aponta para o novo-no*/
             DL->head = newNode; /* atualiza o valor da cabeca recebe o novo-no*/
         } else if (current == NULL) {
@@ -211,9 +211,9 @@ void insert_Dlist(D_List *DL, D_NODE *newNode) {
 void insert_Clist(C_List *CL, float newValue) {
     /*inicia um novo no simples*/
     S_NODE *newNode = create_Snode(newValue);
-    /* se a lista estiver vazia, insere o novo valor na primeira posição atualizando a cabeça, a cauda e o próximo item da lista circular */
+    /* se a lista estiver vazia, insere o novo valor na primeira posicao atualizando a cabeca, a cauda e o próximo item da lista circular */
     if (CL->head == NULL) {
-        CL->head = newNode;  /* atualiza a cabeça que aponta para novo-no se for o primeiro item */
+        CL->head = newNode;  /* atualiza a cabeca que aponta para novo-no se for o primeiro item */
         CL->tail = newNode;  /* atualiza a cauda que aponta para novo-no se for o primeiro item */
         newNode->next = newNode; /* novo no proximo recebe o novo-no se for o primeiro item */
     } else { /*caso ja existam nos na lista circular, busca pelo valor maior que o novo-no para ser inserido em ordem*/

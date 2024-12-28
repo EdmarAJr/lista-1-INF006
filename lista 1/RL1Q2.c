@@ -28,7 +28,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-/* Definições de tipos e variáveis de pré-processamento */
+/* Definicoes de tipos e variaveis de pre-processamento */
 #define LINE_SIZE 1000
 #define STACK_SIZE 100
 
@@ -39,7 +39,7 @@ typedef struct stack {
 } SortedStack;
 
 
-/*protótipos de funções*/
+/*prototipos de funcoes*/
 int start();
 void initStack(SortedStack* stack, int size);
 void clearStack(SortedStack* stack);
@@ -68,7 +68,7 @@ int start() {
     char *line = malloc(LINE_SIZE * sizeof(char));
     /* Separador dos itens da linha */
     char split[] = " ";
-    /* Ponteiro para salvar os dados separados da função strtok_r (thread-safe) */
+    /* Ponteiro para salvar os dados separados da funcao strtok_r (thread-safe) */
     char *outer;
 
     /* Cria uma nova pilha a cada nova linha */
@@ -80,13 +80,13 @@ int start() {
     initStack(stack_aux, STACK_SIZE);
 
     /* Copia cada linha do input no comprimento de 1000 caracteres para line */
-    /* Percorre a linha enquanto existir caractere válido */
+    /* Percorre a linha enquanto existir caractere valido */
     while (fgets(line, LINE_SIZE, input) != NULL) {
         /* Limpa as pilhas antes de processar uma nova linha */
         clearStack(stack);
         clearStack(stack_aux);
          
-         /*Copia a primeira ocorrência de cada linha do input antes do espaco e salva em token o reto da linha fica salva em outer*/
+         /*Copia a primeira ocorrencia de cada linha do input antes do espaco e salva em token o reto da linha fica salva em outer*/
         char* token = strtok_r(line, split, &outer);
 
         /* Inicializa a contagem de pops */
@@ -97,7 +97,7 @@ int start() {
             /* Remove o caractere de nova linha, se existir */
             token[strcspn(token, "\n")] = 0;
 
-            /* Move elementos da pilha principal para a auxiliar enquanto necessário */
+            /* Move elementos da pilha principal para a auxiliar enquanto necessario */
             while (!isEmpty(stack) && strcmp(token, stack->stack[stack->top]) < 0) {
                 push(stack_aux, pop(stack));
                 counterPop++;
@@ -108,7 +108,7 @@ int start() {
                 fprintf(output, "%dx-pop ", counterPop);
                 counterPop = 0;
             }
-            /*empilha os nomes que não cairam no laço anterio*/
+            /*empilha os nomes que nao cairam no laco anterio*/
             push(stack, token);
             /* Escreve no output*/
             fprintf(output, "push-%s ", token);
@@ -120,7 +120,7 @@ int start() {
                 fprintf(output, "push-%s ", auxTop);
             }
 
-            /* Avança para o próximo token */
+            /* Avanca para o proximo token */
             token = strtok_r(NULL, split, &outer);
         }
         /*salta uma linha apos o procesamento da linha atual*/
@@ -158,12 +158,12 @@ bool isFull(SortedStack *stack) {
 }
 
 void push(SortedStack* stack, char* name) {
-    /* Verifica se a pilha está cheia */
+    /* Verifica se a pilha esta cheia */
     if (isFull(stack)) {
         printf("Error: stack full!\n");
         return;
     }
-    /* Aloca memória para o novo nome e coloca-o na pilha */
+    /* Aloca memoria para o novo nome e coloca-o na pilha */
     stack->stack[++stack->top] = strdup(name);
 }
 
