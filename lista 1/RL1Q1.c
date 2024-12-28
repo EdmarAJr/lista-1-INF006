@@ -74,7 +74,7 @@ int start(){
 			/*remove o start de cada novo dado. Ex: 3 -1 2 0 start 4 2 5 1 0 start 2 1 -3 start 2 1 100 -3 start 2 101 -3*/
 			if (strcmp(token, "start") == 0) { 
 				/*copia o dado para o ponteiro outer. thread-safe permite a tokenizacao de multiplas strings simultaneamente sem interferencia entre elas.*/
-        		token = strtok_r(NULL, " ", &outer); 
+        		token = strtok_r(NULL, split, &outer); 
 				/*percorre o dado sem start enquanto for diferente de start Ex: 3 -1 2 0 start*/
 				while(strcmp(token, "start") != 0) { 
 					/*insere os dados de token na linha atual[contador de celulas].lista de numeros[linha atual[contador de celulas].contagem de itens]*/
