@@ -1,4 +1,8 @@
-
+/*************************************** 
+* Equipe: Deivisson Vinicius França de Jesus
+*         Edmar Amorim dos Santos Junior
+* 
+***************************************/
 /*
  *  1. Considere as seguintes entrada e sada abaixo:
  *                   L1Q1.in
@@ -43,10 +47,12 @@ int main() {
     return 0;
 }
 
+/*funcao para iniciar o programa*/
 int start(){
     FILE *input = fopen("L1Q1.in", "r");
     FILE *output = fopen("L1Q1.out", "w");
 	
+	/* Verifica se os ponteiros foram iniciados com sucesso*/
 	if (!input || !output) {
         printf("Error opening files.\n");
         return EXIT_FAILURE;
@@ -64,7 +70,7 @@ int start(){
 	fgets(line, LINE_SIZE, input);
 	/*percorre a linha enquanto existir caractere valido*/
 	while(line != NULL){ 
-		/*copia auxiliar de cada linha*/
+		/*copia auxiliar (token) de cada linha*/
 		char *token = strtok_r(line, split, &outer);
 		
 		/*nova lista sem o start*/
@@ -79,7 +85,7 @@ int start(){
 				while(strcmp(token, "start") != 0) { 
 					/*insere os dados de token na linha atual[contador de celulas].lista de numeros[linha atual[contador de celulas].contagem de itens]*/
                 	currentLine[cellCounter].numberList[currentLine[cellCounter].itemCount] = atoi(token);
-					//salva a soma para organizar a celulas
+					/*salva a soma para organizar a celulas*/
 					currentLine[cellCounter].sum += currentLine[cellCounter].numberList[currentLine[cellCounter].itemCount];
 					/*atualiza o valor do contador de itens armazenadas em cada celula*/
 					currentLine[cellCounter].itemCount++; 
@@ -88,7 +94,7 @@ int start(){
 					/*caso chegue ao final da linha ou encontre um valor nulo, interrompe o loop*/
 					if(token == NULL) break; 
             	}
-				/*atualiza o valor do contador de celulas e vai para a proxima celula na linha*/
+						/*atualiza o valor do contador de celulas e vai para a proxima celula na linha*/
         		cellCounter++; 
         	}	
 		}
@@ -135,6 +141,7 @@ void insertionSortCells(List * input, int listSize) {
 	}
 }
 
+/*funcao para salvar os dados em output*/
 void save(List * input, int listSize, FILE * fileOut, int isLast) {
 	insertionSortCells(input, listSize);
 	int j = 0;
