@@ -141,12 +141,44 @@ void insertionSortCells(List * input, int listSize) {
 	}
 }
 
-/*funcao para salvar os dados em output*/
+
+/*remove os casos duplicados*/
+void removeEqual(List * input, int * listSize) {
+	int tmp = *listSize;
+	List repeated;
+	int change = 0;
+	for(int i = 0; i < tmp; i++) {
+		if(input[i].sum == input[i + 1].sum) {
+			repeated = input[i];
+			change = 1;
+			break;
+		}
+	}
+	if(change) {
+		for(int i = 0; i < tmp; i++) {
+			if(input[i].sum == repeated.sum) {
+				input[i] = input[i + 1];
+				input[i + 1] = repeated;
+			}
+		}
+		(*listSize)--;
+	}
+	else {
+		return;
+	}
+}
+
+
+
+
+
+
 void save(List * input, int listSize, FILE * fileOut, int isLast) {
 	insertionSortCells(input, listSize);
 	int j = 0;
 	for(int i = 0; i < listSize; i++) {
 		fprintf(fileOut, "%s", "start ");
+		removeEqual(input, &listSize);
 		insertionSortItems(&input[i]);
 		for(j = 0; j < input[i].itemCount - 1; j++) {
 			fprintf(fileOut, "%d ", input[i].numberList[j]);
