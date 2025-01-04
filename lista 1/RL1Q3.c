@@ -33,10 +33,9 @@ typedef struct circular_linked_list {
 typedef struct doubly_linked_node {
 	float keyRange;
 	struct doubly_linked_node *next;
-	struct doubly_linked_node *prev;
+	struct doubly_linked_node *previous;
 	circular_linked_list *key;
 } doubly_linked_node;
-
 
 typedef struct doubly_linked_list {
 	doubly_linked_node *head;
@@ -54,7 +53,7 @@ doubly_linked_node *createDoublyNode(float value);
 void insertDL(doubly_linked_list *DL, float newValue);
 void insertNodeIntoKey(doubly_linked_list *DL, float newValue);
 void freeLists(doubly_linked_list *DL);
-void printFile(doubly_linked_list *DL, FILE * output, int isLast);
+void printFile(doubly_linked_list *DL, FILE * output, int lastInLine);
 //float decimalPlaces(char* str, int places);
 
 int main() {
@@ -97,8 +96,8 @@ int start() {
 				while((strcmp(token, "LI") != 0) && token != NULL) {
 					// float tmp = decimalPlaces(token, 2);
                     /*converte o token atual para float*/
-                    float tmp = atof(token);
-					insertDL(dl, tmp);
+                    float node = atof(token);
+					insertDL(dl, node);
                     /*define o item atual como nulo e segue para o proximo item da linha*/
 					token = strtok_r(NULL, split, &outer);
 				}
@@ -109,18 +108,17 @@ int start() {
 				while((strcmp(token, "LE") != 0)) {
 					// float tmp = decimalPlaces(token, 2);
                     /*converte o token atual para float*/
-                    float tmp = atof(token);
-					insertNodeIntoKey(dl, tmp);
+                    float node = atof(token);
+					insertNodeIntoKey(dl, node);
 					token = strtok_r(NULL, split, &outer);
                     /*se o no encontrado for nulo interrompre o laço e segue para a etapa seguinte*/
-					if(token == NULL) {
-						break;
-					}
+					if(token == NULL) break;
 				}
 			}
             /*define o item atual como nulo e segue para a proxima linha*/
 			token = strtok_r(NULL, split, &outer);
 		}
+		/*garantir que as linhas nulas nao sejam salvas*/
 		if(fgets(line, LINE_SIZE, input) != NULL) {
 			printFile(dl, output, 0);
 			freeLists(dl);
@@ -155,9 +153,6 @@ simple_node *createSimpleNode(float value) {
 
 /*funcao para inserir no na lista circular*/
 void insertCL(circular_linked_list * CL, float new) {
-	//simple_node * newNode = (simple_node *)malloc(sizeof(simple_node));
-	//newNode->key = new;
-    
     /*inicia um novo no simples*/
     simple_node *newNode = createSimpleNode(new);
     /*inicia um novo atual que recebe a cabeca da lista*/
@@ -166,17 +161,18 @@ void insertCL(circular_linked_list * CL, float new) {
     if(current == NULL) {
 		CL->head = newNode; /* atualiza a cabeca que aponta para novo-no se for o primeiro item */
 		CL->tail = newNode; /* atualiza a cauda que aponta para novo-no se for o primeiro item */
-		newNode -> next = newNode; /* novo no proximo recebe o novo-no se for o primeiro item */
+		newNode->next = newNode; /* novo no proximo recebe o novo-no se for o primeiro item */
 	} else { /*caso ja existam nos na lista circular, busca pelo valor maior que o novo-no para ser inserido em ordem*/
-		if(new < current -> key) {
-			newNode -> next = current;
+		if(new < current->key) {
+			newNode->next = current;
 			CL->head = newNode;
 			CL->tail->next = newNode;
 		} else {
-			while (current != CL->tail && new > current->next->key) {
-				current = current -> next;
-			}
+			while (current != CL->tail && new > current->next->key) 
+				current = current->next;
+			/*atualiza o valor do novo-no-proximo*/
 			newNode->next = current->next;
+			/*atualiza o valor do atual-no-proximo*/
 			current->next = newNode;
 			if (current == CL->tail) {
 				CL->tail = newNode;
@@ -194,9 +190,9 @@ void initDL(doubly_linked_list *DL) {
 /* funcao para criar um novo no duplo */
 doubly_linked_node *createDoublyNode(float value) {
     doubly_linked_node *node = (doubly_linked_node *)malloc(sizeof(doubly_linked_node));
+    node->previous = NULL;
     node->keyRange = value;
     node->next = NULL;
-    node->prev = NULL;
     node->key = NULL;
     return node;
 }
@@ -207,21 +203,21 @@ void insertDL(doubly_linked_list * DL, float newValue) {
     doubly_linked_node *newNode = createDoublyNode(newValue);
 	//newNode->keyRange = newValue;
 	newNode->key = (circular_linked_list*)malloc(sizeof(circular_linked_list));
-	initCL(newNode -> key);
+	initCL(newNode->key);
 
     /*cria o no-atual para receber o valor da cabeca da lista*/       
 	doubly_linked_node * current = DL->head;
     /*Se a lista estiver vazia, inicializa a cabeca e a cauda*/ 
 	if(current == NULL) {
-		newNode->prev = NULL;
+		newNode->previous = NULL;
 		newNode->next = NULL;
 		DL->head = newNode;
 		DL->tail = newNode;
 	} else {/*caso ja existam nos na lista dupla*/
 		if(newValue < current->keyRange) {
 			newNode->next = current;
-			newNode->prev = NULL;
-			current->prev = newNode;
+			newNode->previous = NULL;
+			current->previous = newNode;
 			DL->head = newNode;
 		} else {
             /*busca na lista um primeiro valor maior que o valor informado*/
@@ -234,14 +230,14 @@ void insertDL(doubly_linked_list * DL, float newValue) {
 				current = current->next;
 			}
 			newNode->next = current;
-			newNode->prev = current->prev;
+			newNode->previous = current->previous;
 			if(current->next == NULL) {
-				newNode->prev = current;
+				newNode->previous = current;
 				newNode->next = NULL;
 				current->next = newNode;
 			} else {
-				current-> prev->next = newNode;
-				current->prev = newNode;
+				current-> previous->next = newNode;
+				current->previous = newNode;
 			}
 		}
 	}
@@ -249,76 +245,55 @@ void insertDL(doubly_linked_list * DL, float newValue) {
 
 void insertNodeIntoKey(doubly_linked_list *DL, float newValue) {
 	doubly_linked_node *current = DL->head;
-	if(current == NULL) {
-		return;
-	}
+	if(current == NULL) return;
 	while(current != NULL) {
-		float difference = 0.0f;
-		if((newValue - current -> keyRange) <= 0.99f &&  newValue > current->keyRange - 1) {
-			insertCL(current -> key, newValue);
+		if((newValue - current->keyRange) <= 1.0f &&  newValue > current->keyRange - 1) {
+			insertCL(current->key, newValue);
 			break;
+		} else{
+			if((current->keyRange - newValue) <= 1.0f && newValue > current->keyRange - 1 && newValue < current-> keyRange + 1) {
+				insertCL(current->key, newValue);
+				break;
+			}
 		}
-		else if((current->keyRange - newValue) <= 0.99f && newValue > current->keyRange - 1 && newValue < current-> keyRange + 1) {
-			insertCL(current -> key, newValue);
-			break;
-		}
-		current = current -> next;
+		current = current->next;
 	}
 }
 
 /* funcao para imprimir a lista dupla */
-void printFile(doubly_linked_list *DL, FILE *output, int isLast) {
-	doubly_linked_node *tmp = DL->head;
-	//simple_node *end;
+void printFile(doubly_linked_list *DL, FILE *output, int 
+lastInLine) {
+	doubly_linked_node *current = DL->head;
 	fprintf(output, "[");
-	while(tmp != NULL) {
-		fprintf(output, "%g", tmp -> keyRange );
-		simple_node *end = tmp->key->head;
+	while(current != NULL) {
+		fprintf(output, "%g", current->keyRange );
+		simple_node *end = current->key->head;
 		fputc('(',output);
-		if(tmp -> key -> head != NULL) {
-			while (end -> next != tmp -> key -> head) {
+		if(current->key->head != NULL) {
+			while (end->next != current->key->head) {
 				fprintf(output, "%g->", end->key);
 				end = end->next;
 			}
 			fprintf(output, "%g)", end->key);
-		} else {
-			fprintf(output, ")");
-		}
-		tmp = tmp -> next;
-		if(tmp != NULL) {
-			fprintf(output, "->");
-		}
+		} else fprintf(output, ")");
+		
+		current = current->next;
+		if(current != NULL) fprintf(output, "->");
 	}
-	if(!isLast) {
-		fprintf(output, "]\n");
-	} else {
-		fprintf(output, "]");
-	}
+	if(!lastInLine) fprintf(output, "]\n");
+	 else fprintf(output, "]");
+	
 }
-
-
-// float decimalPlaces(char* str, int places) {
-// 	float number = atof(str); 
-// 	float power = 1;
-// 	for (int i = 0; i < places; i++) {
-// 		power *= 10;
-// 	}
-// 	return ((int)(number * power)) / power;
-// }
-
 
 void freeCL(circular_linked_list * CL) {
 	if (CL == NULL) return; 
-	
 	simple_node *current = CL->head;
-	simple_node *temp;
+	simple_node *temporary;
 	while (current != NULL) {
-		temp = current;
+		temporary = current;
 		current = current->next;
-		free(temp);
-		if (current == CL->head) {
-			break; // Para evitar um loop infinito se a lista for circular
-		}
+		free(temporary);
+		if (current == CL->head) break; // Para evitar um loop infinito se a lista for circular
 	}
 	CL->head = NULL; // Define o ponteiro da lista como NULL no final da funcao
 	CL->tail = NULL;
@@ -326,12 +301,12 @@ void freeCL(circular_linked_list * CL) {
 
 void freeLists(doubly_linked_list *DL) {
 	doubly_linked_node *current = DL->tail;
-	doubly_linked_node *temp;
+	doubly_linked_node *temporary;
 	while (current != NULL) {
-		temp = current;
-		freeCL(temp -> key);
-		current = current->prev;
-		free(temp);
+		temporary = current;
+		freeCL(temporary->key);
+		current = current->previous;
+		free(temporary);
 	}
 	DL->head = NULL;
 	DL->tail = NULL;
