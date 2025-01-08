@@ -15,6 +15,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+#include <stdbool.h>
 
 /* Definicoes de tipos e variaveis de pre-processamento */
 # define LINE_SIZE 1000
@@ -53,7 +54,7 @@ doubly_linked_node *createDoublyNode(float value);
 void insertDL(doubly_linked_list *DL, float newValue);
 void insertNodeIntoKey(doubly_linked_list *DL, float newValue);
 void freeLists(doubly_linked_list *DL);
-void printFile(doubly_linked_list *DL, FILE * output, int lastInLine);
+void printFile(doubly_linked_list *DL, FILE * output, bool lastInLine);
 //float decimalPlaces(char* str, int places);
 
 int main() {
@@ -261,7 +262,7 @@ void insertNodeIntoKey(doubly_linked_list *DL, float newValue) {
 }
 
 /* funcao para imprimir a lista dupla */
-void printFile(doubly_linked_list *DL, FILE *output, int 
+void printFile(doubly_linked_list *DL, FILE *output, bool 
 lastInLine) {
 	doubly_linked_node *current = DL->head;
 	fprintf(output, "[");
