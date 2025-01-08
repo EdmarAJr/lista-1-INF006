@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 /*definicoes de tipos e variaveis de pre-processamento*/
 #define LINE_SIZE 1000
@@ -39,7 +40,7 @@ typedef struct list {
 
 /*prototipos de funcoes*/
 int start();
-void save(List * input, int listSize, FILE * fileOut, int isLast);
+void save(List * input, int listSize, FILE * fileOut, bool lastInLine);
 void insertionSortCells(List * input, int listSize);
 
 int main() {
@@ -100,9 +101,9 @@ int start(){
 		}
 		
 		if(fgets(line, LINE_SIZE, input) != NULL) 
-			save(currentLine, cellCounter, output, 0);
+			save(currentLine, cellCounter, output, false);
 		else {
-			save(currentLine, cellCounter, output, 1);
+			save(currentLine, cellCounter, output, true);
 			break;
 		}
 		cellCounter = 0;
@@ -143,21 +144,21 @@ void insertionSortCells(List * input, int listSize) {
 
 /*remove os casos duplicados*/
 void removeDuplicateInput(List * input, int * listSize) {
-	int tmp = *listSize;
-	List repeated;
-	int change = 0;
-	for(int i = 0; i < tmp; i++) {
+	int temporary = *listSize;
+	List duplicateInput;
+	int found = 0;
+	for(int i = 0; i < temporary; i++) {
 		if(input[i].sum == input[i + 1].sum) {
-			repeated = input[i];
-			change = 1;
+			duplicateInput = input[i];
+			found = 1;
 			break;
 		}
 	}
-	if(change) {
-		for(int i = 0; i < tmp; i++) {
-			if(input[i].sum == repeated.sum) {
+	if(found) {
+		for(int i = 0; i < temporary; i++) {
+			if(input[i].sum == duplicateInput.sum) {
 				input[i] = input[i + 1];
-				input[i + 1] = repeated;
+				input[i + 1] = duplicateInput;
 			}
 		}
 		(*listSize)--;
@@ -167,7 +168,7 @@ void removeDuplicateInput(List * input, int * listSize) {
 	}
 }
 
-void save(List * input, int listSize, FILE * fileOut, int isLast) {
+void save(List * input, int listSize, FILE * fileOut, bool lastInLine) {
 	insertionSortCells(input, listSize);
 	int j = 0;
 	for(int i = 0; i < listSize; i++) {
@@ -184,7 +185,7 @@ void save(List * input, int listSize, FILE * fileOut, int isLast) {
 			fprintf(fileOut, "%d", input[i].numberList[j]);
 		}
 	}
-	if(!isLast) {
+	if(!lastInLine) {
 		fputc('\n', fileOut);
 	}
 }
